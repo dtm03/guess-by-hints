@@ -1,32 +1,43 @@
 # Guess by hints
 
-Two small React guessing games: hints get easier until you guess the title. Same UI and scoring; different prompts (movies vs books).
+React guessing games: pick **movie** or **book**, get hints until you guess the title.
 
-| App | Folder | Stack |
-|-----|--------|--------|
-| Guess the Movie | [`movie/`](movie/) | Create React App + Vercel serverless (`api/gemini.js`) |
-| Guess the Book | [`book/`](book/) | Same |
+## Deploy (recommended — one URL with chooser)
 
-## Run locally
+Use the unified app in [`app/`](app/):
 
-Each app is independent (own `package.json`):
+| URL path | What |
+|----------|------|
+| `/` | Choose movie or book |
+| `/movie` | Movie game |
+| `/book` | Book game |
+
+### Vercel
+
+1. Import this GitHub repo in [Vercel](https://vercel.com).
+2. **Root Directory:** `app`
+3. **Environment variables** (Production):
+   - `GEMINI_API_KEY` — server-side, for `/api/gemini` (required in production)
+   - Optional for local-style dev on Vercel: `REACT_APP_GEMINI_API_KEY` (usually not needed if the API route works)
+4. Deploy. Your site root shows the picker; `/movie` and `/book` work via client routing (`vercel.json` rewrites).
+
+If you had two old Vercel projects (`movie/` and `book/` roots), you can delete one and point your domain at this single project.
+
+### Run locally
 
 ```bash
-cd movie   # or book
+cd app
 npm install
 cp .env.example .env
-# set REACT_APP_GEMINI_API_KEY in .env
+# REACT_APP_GEMINI_API_KEY=...  (direct Gemini calls in development)
 npm start
 ```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) — start page, then pick a mode.
 
-Create **one Vercel project per app** (or two deployments from this repo):
+## Legacy standalone apps
 
-- **Movie:** Root Directory = `movie`
-- **Book:** Root Directory = `book`
-
-Set `REACT_APP_GEMINI_API_KEY` in the Vercel project environment. The Gemini proxy lives in each app’s `api/` folder.
+[`movie/`](movie/) and [`book/`](book/) are the earlier split apps (each its own CRA + Vercel root). Kept for reference; **`app/` is what you should deploy** for one combined experience.
 
 ## History
 
