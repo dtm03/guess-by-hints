@@ -1,60 +1,33 @@
-# Guess the Movie - React Web App
+# Guess by hints
 
-A movie guessing game converted from React Native to React web application.
+Two small React guessing games: hints get easier until you guess the title. Same UI and scoring; different prompts (movies vs books).
 
-## Features
+| App | Folder | Stack |
+|-----|--------|--------|
+| Guess the Movie | [`movie/`](movie/) | Create React App + Vercel serverless (`api/gemini.js`) |
+| Guess the Book | [`book/`](book/) | Same |
 
-- Interactive movie guessing game with hints
-- Score tracking and statistics
-- Local storage for persistent data
-- Responsive design with gradient backgrounds
-- Integration with OpenAI API for movie generation
+## Run locally
 
-## Setup
+Each app is independent (own `package.json`):
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+cd movie   # or book
+npm install
+cp .env.example .env
+# set REACT_APP_GEMINI_API_KEY in .env
+npm start
+```
 
-2. Create a `.env` file based on `.env.example`:
-   ```bash
-   cp .env.example .env
-   ```
+## Deploy on Vercel
 
-3. Add your OpenAI API key to the `.env` file:
-   ```
-   REACT_APP_OPENAI_API_KEY=your_actual_api_key_here
-   ```
+Create **one Vercel project per app** (or two deployments from this repo):
 
-4. Start the development server:
-   ```bash
-   npm start
-   ```
+- **Movie:** Root Directory = `movie`
+- **Book:** Root Directory = `book`
 
-## Conversion Notes
+Set `REACT_APP_GEMINI_API_KEY` in the Vercel project environment. The Gemini proxy lives in each app’s `api/` folder.
 
-This application was converted from React Native to React web app with the following changes:
+## History
 
-- **Navigation**: React Navigation → React Router DOM
-- **Styling**: React Native StyleSheet → Styled Components
-- **Storage**: AsyncStorage → localStorage
-- **Components**: React Native components → HTML/React web components
-- **Fonts**: Expo Google Fonts → Google Fonts via CDN
-- **Images**: Static imports for web compatibility
-
-## Technologies Used
-
-- React 18
-- React Router DOM
-- Styled Components
-- Axios (for API calls)
-- OpenAI API
-
-## Game Rules
-
-- Guess the movie based on hints
-- Start with the most challenging hint, get easier hints as you progress
-- Score: 30 points minus 5 points per hint used
-- You have 3 guesses per movie
-- Stats are saved locally in your browser
+Replaces the older GitHub repos `guess-the-movie` and `guess-the-book`.
