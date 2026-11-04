@@ -15,17 +15,18 @@ Use the unified app in [`app/`](app/):
 ### Vercel
 
 1. Import this GitHub repo in [Vercel](https://vercel.com).
-2. **Project Settings → General → Root Directory:** `app` (Edit → select `app` → Save).
-3. **Build settings** (usually auto-detected for Create React App):
-   - Build Command: `npm run build`
-   - Output Directory: `build`
-   - Install Command: `npm install`
-4. **Environment variables** → **Production** (and Preview if you want):
+2. **Root Directory** — pick **one** approach (both work after the latest commits):
+   - **Option A (recommended):** Root Directory = **`app`**
+   - **Option B:** Root Directory = **empty / `.`** — uses repo-root `vercel.json` + `package.json` to build `app/`
+3. **Project Settings → Build & Deployment:** turn **OFF** any override that sets Build Command to bare `react-scripts build`. Use **`npm run build`** or leave defaults (the repo’s `vercel.json` sets install + build).
+4. **Node.js Version:** **20.x** (matches `.nvmrc`; Node 22 + old CRA can be flaky).
+5. Deploy the **latest** commit on `master` (new deployment from Git). **Do not** “Redeploy” an old failed deployment — that reuses an old commit like `75ffca4`.
+6. **Environment variables** → **Production** (and Preview if you want):
    - Name: `GEMINI_API_KEY` — your Google AI / Gemini key  
    - Enable **Sensitive** (so teammates cannot read the value; it is still used server-side by `api/gemini.js`).  
    - Do **not** check “expose to browser” / do **not** prefix with `REACT_APP_` (that would leak the key to visitors).
    - Remove `REACT_APP_GEMINI_API_KEY` from Vercel unless you intentionally want client-side calls.
-5. Redeploy after changing variables or Root Directory.
+7. Redeploy after changing variables or Root Directory.
 
 Your site root shows the picker; `/movie` and `/book` use client routing (`app/vercel.json` rewrites).
 
