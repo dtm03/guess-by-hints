@@ -15,11 +15,19 @@ Use the unified app in [`app/`](app/):
 ### Vercel
 
 1. Import this GitHub repo in [Vercel](https://vercel.com).
-2. **Root Directory:** `app`
-3. **Environment variables** (Production):
-   - `GEMINI_API_KEY` — server-side, for `/api/gemini` (required in production)
-   - Optional for local-style dev on Vercel: `REACT_APP_GEMINI_API_KEY` (usually not needed if the API route works)
-4. Deploy. Your site root shows the picker; `/movie` and `/book` work via client routing (`vercel.json` rewrites).
+2. **Project Settings → General → Root Directory:** `app` (Edit → select `app` → Save).
+3. **Build settings** (usually auto-detected for Create React App):
+   - Build Command: `npm run build`
+   - Output Directory: `build`
+   - Install Command: `npm install`
+4. **Environment variables** → **Production** (and Preview if you want):
+   - Name: `GEMINI_API_KEY` — your Google AI / Gemini key  
+   - Enable **Sensitive** (so teammates cannot read the value; it is still used server-side by `api/gemini.js`).  
+   - Do **not** check “expose to browser” / do **not** prefix with `REACT_APP_` (that would leak the key to visitors).
+   - Remove `REACT_APP_GEMINI_API_KEY` from Vercel unless you intentionally want client-side calls.
+5. Redeploy after changing variables or Root Directory.
+
+Your site root shows the picker; `/movie` and `/book` use client routing (`app/vercel.json` rewrites).
 
 If you had two old Vercel projects (`movie/` and `book/` roots), you can delete one and point your domain at this single project.
 
