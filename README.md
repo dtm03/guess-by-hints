@@ -17,7 +17,7 @@ Use the unified app in [`app/`](app/):
 1. Import this GitHub repo in [Vercel](https://vercel.com).
 2. **Root Directory** — pick **one** approach (both work after the latest commits):
    - **Option A (recommended):** Root Directory = **`app`**
-   - **Option B:** Root Directory = **empty / `.`** — uses repo-root `vercel.json` + `package.json` to build `app/`
+   - **Option B:** Root Directory = **empty / `.`** — builds `app/`, serves `/api/gemini` from repo-root `api/` (required by Vercel)
 3. **Project Settings → Build & Deployment:** turn **OFF** any override that sets Build Command to bare `react-scripts build`. Use **`npm run build`** or leave defaults (the repo’s `vercel.json` sets install + build).
 4. **Node.js Version:** **20.x** (matches `.nvmrc`; Node 22 + old CRA can be flaky).
 5. Deploy the **latest** commit on `master` (new deployment from Git). **Do not** “Redeploy” an old failed deployment — that reuses an old commit like `75ffca4`.

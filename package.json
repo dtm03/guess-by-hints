@@ -1,6 +1,9 @@
 {
   "name": "guess-by-hints",
   "private": true,
+  "dependencies": {
+    "axios": "^1.7.2"
+  },
   "scripts": {
     "build": "npm run build --prefix app",
     "vercel-build": "npm install --prefix app && npm run build --prefix app"

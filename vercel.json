@@ -1,9 +1,9 @@
 {
-  "installCommand": "npm install --prefix app",
+  "installCommand": "npm install && npm install --prefix app",
   "buildCommand": "npm run build --prefix app",
   "outputDirectory": "app/build",
   "functions": {
-    "app/api/gemini.js": {
+    "api/gemini.js": {
       "maxDuration": 30
     }
   },
