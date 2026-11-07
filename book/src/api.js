@@ -10,7 +10,7 @@ const makeGeminiRequest = async (requestBody) => {
   if (isDevelopment && API_KEY) {
     // In development, call Gemini API directly if API key is available
     return await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${API_KEY}`,
       requestBody,
       {
         headers: {
