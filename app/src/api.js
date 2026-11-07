@@ -1,5 +1,14 @@
 import axios from "axios";
 import { normalizeTitle } from "./utils/stringUtils";
+import {
+  extractGeminiText,
+  parseBatchBlocks,
+  parseTitleAndHints,
+} from "./utils/geminiParse";
+
+const GENERATION_DEFAULTS = {
+  thinkingConfig: { thinkingBudget: 0 },
+};
 
 const isDevelopment = process.env.NODE_ENV === "development";
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
@@ -87,38 +96,19 @@ Make sure to follow this exact format with proper line breaks.`,
 };
 
 async function getMultiple(mode) {
-  const { batch, label } = PROMPTS[mode];
+  const { batch } = PROMPTS[mode];
   try {
     const response = await makeGeminiRequest({
       contents: [{ parts: [{ text: batch }] }],
       generationConfig: {
         temperature: 0.8,
-        maxOutputTokens: 1500,
+        maxOutputTokens: 8192,
+        ...GENERATION_DEFAULTS,
       },
     });
 
-    const result = response.data.candidates[0].content.parts[0].text.trim();
-    const blocks = result
-      .split("---")
-      .map((block) => block.trim())
-      .filter((block) => block.length > 0);
-
-    return blocks
-      .map((block) => {
-        const lines = block
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 0);
-        const title = lines[0].replace(label, "");
-        const hints = lines
-          .slice(1)
-          .map((line) => line.replace(/Hint \d+: /, ""));
-        return { [mode === "movie" ? "movie" : "book"]: title, hints };
-      })
-      .filter((entry) => {
-        const title = entry.movie ?? entry.book;
-        return title && entry.hints.length >= 5;
-      });
+    const result = extractGeminiText(response.data);
+    return parseBatchBlocks(result, mode);
   } catch (error) {
     console.error(`Error fetching multiple ${mode}s:`, error);
     return [];
@@ -152,17 +142,16 @@ export async function getRoundAndHints(mode) {
       contents: [{ parts: [{ text: PROMPTS[mode].single }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 200,
+        maxOutputTokens: 1024,
+        ...GENERATION_DEFAULTS,
       },
     });
 
-    const result = response.data.candidates[0].content.parts[0].text.trim();
-    const lines = result
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
-    const title = lines[0].replace(PROMPTS[mode].label, "");
-    const hints = lines.slice(1).map((line) => line.replace(/Hint \d+: /, ""));
+    const result = extractGeminiText(response.data);
+    const { title, hints } = parseTitleAndHints(result, mode);
+    if (!title || hints.length < 5) {
+      return null;
+    }
 
     return { [answerKey]: title, hints };
   } catch (error) {

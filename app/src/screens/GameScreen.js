@@ -73,10 +73,6 @@ export default function GameScreen({ mode = "movie" }) {
         }
       />
 
-      <BackLink as={Link} to="/">
-        ← Choose movie or book
-      </BackLink>
-
       <StatsBar>
         <StatItem>
           <StatLabel>{config.statLabel}</StatLabel>
@@ -110,10 +106,14 @@ export default function GameScreen({ mode = "movie" }) {
         takeGuess={() => takeGuess(gameState, mode)}
       />
 
-      {gameState.roundData.hints &&
-        gameState.roundData.hints
-          .slice(0, gameState.hintIndex + 1)
-          .map((hint, index) => <Hint key={index}>{hint}</Hint>)}
+      {gameState.roundData.hints
+        ?.slice(0, gameState.hintIndex + 1)
+        .filter((hint) => hint?.trim())
+        .map((hint, index) => (
+          <Hint key={index}>
+            Hint {index + 1}: {hint}
+          </Hint>
+        ))}
 
       <ButtonGroup>
         {!allHintsShown && (
@@ -133,6 +133,10 @@ export default function GameScreen({ mode = "movie" }) {
           {config.skipLabel}
         </Button>
       </ButtonGroup>
+
+      <BackLink as={Link} to="/">
+        ← Choose movie or book
+      </BackLink>
     </Container>
   );
 }

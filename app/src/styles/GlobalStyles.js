@@ -379,8 +379,9 @@ export const ModeCardText = styled.p`
 
 export const BackLink = styled.a`
   position: absolute;
-  top: 90px;
+  bottom: 24px;
   left: 24px;
+  top: auto;
   z-index: 11;
   color: #fff;
   font-family: "Mulish", sans-serif;
@@ -393,7 +394,7 @@ export const BackLink = styled.a`
   }
 
   @media (max-width: 480px) {
-    top: 72px;
+    bottom: 16px;
     left: 16px;
     font-size: 12px;
   }

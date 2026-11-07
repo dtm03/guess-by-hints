@@ -64,7 +64,10 @@ export const resetGame = async (resetScore, gameState, mode) => {
   gameState.setGuess("");
   gameState.setRemainingNumberOfGuesses(3);
 
-  const data = await getRoundAndHints(mode);
+  let data = await getRoundAndHints(mode);
+  if (!data) {
+    data = await getRoundAndHints(mode);
+  }
   if (data) {
     gameState.setRoundData(data);
   }
