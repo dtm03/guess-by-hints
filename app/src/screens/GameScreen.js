@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import GradientBackground from "../components/GradientBackground";
 import GuessInput from "../components/GuessInput";
@@ -7,6 +7,7 @@ import {
   takeGuess,
   resetGame,
   skipRound,
+  advanceAfterAllHintsRevealed,
 } from "../utils/gameUtils";
 import { useGameState } from "../hooks/useGameState";
 import { getModeConfig } from "../config/gameModes";
@@ -32,11 +33,54 @@ export default function GameScreen({ mode = "movie" }) {
   const config = getModeConfig(mode);
   const gameState = useGameState();
 
+  const roundKeyRef = useRef(null);
+  const advanceTimerRef = useRef(null);
+  const gameStateRef = useRef(gameState);
+  gameStateRef.current = gameState;
+
   useEffect(() => {
     resetGame(true, gameState, mode);
   }, [mode]);
 
-  if (!gameState.roundData) {
+  const roundData = gameState.roundData;
+  const answer = roundData?.[config.answerKey];
+  const maxHints = roundData?.hints?.length ?? 5;
+  const allHintsShown = gameState.hintIndex >= maxHints - 1;
+  const isLastGuess =
+    gameState.remainingNumberOfGuesses === 0 &&
+    gameState.isGuessCorrect === false;
+  const revealAnswerAfterAllHints =
+    Boolean(roundData) &&
+    allHintsShown &&
+    gameState.isGuessCorrect === null;
+  const showAnswer = isLastGuess || revealAnswerAfterAllHints;
+
+  useEffect(() => {
+    roundKeyRef.current = null;
+    if (advanceTimerRef.current) {
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = null;
+    }
+  }, [answer]);
+
+  useEffect(() => {
+    if (!revealAnswerAfterAllHints || !answer) return;
+    if (roundKeyRef.current === answer) return;
+    roundKeyRef.current = answer;
+
+    advanceTimerRef.current = setTimeout(() => {
+      advanceAfterAllHintsRevealed(gameStateRef.current, mode);
+    }, 3000);
+
+    return () => {
+      if (advanceTimerRef.current) {
+        clearTimeout(advanceTimerRef.current);
+        advanceTimerRef.current = null;
+      }
+    };
+  }, [revealAnswerAfterAllHints, answer, mode]);
+
+  if (!roundData) {
     return (
       <LoadingContainer>
         <GradientBackground color1="#134074" color2="#7899D4" />
@@ -44,15 +88,6 @@ export default function GameScreen({ mode = "movie" }) {
       </LoadingContainer>
     );
   }
-
-  const answer = gameState.roundData[config.answerKey];
-  const maxHints = gameState.roundData.hints
-    ? gameState.roundData.hints.length
-    : 5;
-  const allHintsShown = gameState.hintIndex >= maxHints - 1;
-  const isLastGuess =
-    gameState.remainingNumberOfGuesses === 0 &&
-    gameState.isGuessCorrect === false;
 
   return (
     <Container>
@@ -92,21 +127,27 @@ export default function GameScreen({ mode = "movie" }) {
 
       <Score>{gameState.score}</Score>
 
-      {isLastGuess ? (
-        <AnswerReveal>You should have guessed: {answer}</AnswerReveal>
+      {showAnswer ? (
+        <AnswerReveal>
+          {revealAnswerAfterAllHints
+            ? `The answer is: ${answer}`
+            : `You should have guessed: ${answer}`}
+        </AnswerReveal>
       ) : (
         <RemainingGuesses>
           Remaining Guesses: {gameState.remainingNumberOfGuesses}
         </RemainingGuesses>
       )}
 
-      <GuessInput
-        guess={gameState.guess}
-        setGuess={gameState.setGuess}
-        takeGuess={() => takeGuess(gameState, mode)}
-      />
+      {!revealAnswerAfterAllHints && (
+        <GuessInput
+          guess={gameState.guess}
+          setGuess={gameState.setGuess}
+          takeGuess={() => takeGuess(gameState, mode)}
+        />
+      )}
 
-      {gameState.roundData.hints
+      {roundData.hints
         ?.slice(0, gameState.hintIndex + 1)
         .filter((hint) => hint?.trim())
         .map((hint, index) => (
@@ -115,24 +156,26 @@ export default function GameScreen({ mode = "movie" }) {
           </Hint>
         ))}
 
-      <ButtonGroup>
-        {!allHintsShown && (
-          <Button
-            onClick={() =>
-              handleNewHint(
-                gameState.hintIndex,
-                gameState.setHintIndex,
-                gameState.roundData.hints
-              )
-            }
-          >
-            New Hint
+      {!revealAnswerAfterAllHints && (
+        <ButtonGroup>
+          {!allHintsShown && (
+            <Button
+              onClick={() =>
+                handleNewHint(
+                  gameState.hintIndex,
+                  gameState.setHintIndex,
+                  roundData.hints
+                )
+              }
+            >
+              New Hint
+            </Button>
+          )}
+          <Button onClick={() => skipRound(gameState, mode)}>
+            {config.skipLabel}
           </Button>
-        )}
-        <Button onClick={() => skipRound(gameState, mode)}>
-          {config.skipLabel}
-        </Button>
-      </ButtonGroup>
+        </ButtonGroup>
+      )}
 
       <BackLink as={Link} to="/">
         ← Choose movie or book

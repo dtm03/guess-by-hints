@@ -55,6 +55,13 @@ export const skipRound = (gameState, mode) => {
   resetGame(true, gameState, mode);
 };
 
+/** After all hints are visible, show the answer then load the next round. */
+export const advanceAfterAllHintsRevealed = (gameState, mode) => {
+  gameState.setRoundsPlayed(gameState.roundsPlayed + 1);
+  gameState.setScore(0);
+  resetGame(true, gameState, mode);
+};
+
 export const resetGame = async (resetScore, gameState, mode) => {
   if (resetScore) {
     gameState.setScore(0);
